@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import { Subscription } from '../types';
 import { daysUntilRenewal, daysSince, formatCountdown, formatCurrency, normalizeToMonthly, formatDate } from '../utils/dates';
 import { getCategoryById } from '../utils/categories';
@@ -9,9 +10,10 @@ interface SubscriptionCardProps {
   onEdit: (sub: Subscription) => void;
   onDelete: (id: number) => void;
   onMarkUsed: (id: number) => void;
+  index?: number;
 }
 
-export const SubscriptionCard = ({ subscription, currency, onEdit, onDelete, onMarkUsed }: SubscriptionCardProps) => {
+export const SubscriptionCard = ({ subscription, currency, onEdit, onDelete, onMarkUsed, index = 0 }: SubscriptionCardProps) => {
   const days = daysUntilRenewal(subscription.nextDate);
   const { label, urgency } = formatCountdown(days);
   const category = getCategoryById(subscription.category);
@@ -26,7 +28,14 @@ export const SubscriptionCard = ({ subscription, currency, onEdit, onDelete, onM
     : 'bg-[var(--surface)] text-[var(--text-secondary)] border-[var(--border)]';
 
   return (
-    <div className="relative bg-[var(--card)] border border-[var(--border)] rounded-xl overflow-hidden hover:-translate-y-0.5 hover:border-[var(--text-muted)] transition-all duration-200 group">
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -8, scale: 0.97 }}
+      transition={{ duration: 0.22, ease: 'easeOut', delay: index * 0.04 }}
+      className="relative bg-[var(--card)] border border-[var(--border)] rounded-xl overflow-hidden hover:-translate-y-0.5 hover:border-[var(--text-muted)] transition-[border-color,box-shadow] duration-200 group"
+    >
       {/* Color accent bar */}
       <div className="absolute left-0 top-0 bottom-0 w-1" style={{ backgroundColor: subscription.color || category.color }} />
       
@@ -117,6 +126,6 @@ export const SubscriptionCard = ({ subscription, currency, onEdit, onDelete, onM
           <p className="text-xs text-[var(--text-muted)] mt-2 truncate">{subscription.notes}</p>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };

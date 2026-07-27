@@ -27,13 +27,13 @@
 ## v0.5 — PWA & Polish
 - [x] Full PWA support (offline, installable)
 - [x] Dark/light mode toggle
-- [ ] Smooth animations (Framer Motion)
+- [x] Smooth animations (Framer Motion)
 - [x] Mobile responsive layout
 
 ## v1.0 — Launch
 - [ ] README with screenshots
 - [ ] GitHub Pages deploy
-- [ ] Onboarding flow (first-run wizard)
+- [x] Onboarding flow (first-run wizard)
 
 ## v1.1 — Import & Detection
 - [x] Bank/card CSV import with recurring-charge detection
