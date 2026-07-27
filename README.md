@@ -27,7 +27,17 @@
 
 ## 📸 Screenshots
 
-> _Screenshots coming soon — run locally to see the app in action_
+| Dashboard (Dark) | Light Theme |
+|---|---|
+| ![Dashboard Dark](docs/dashboard-dark.png) | ![Light Theme](docs/dashboard-light.png) |
+
+| Add Subscription | Settings |
+|---|---|
+| ![Add Subscription](docs/add-subscription.png) | ![Settings](docs/settings.png) |
+
+| Mobile Dashboard |
+|---|
+| ![Mobile Dashboard](docs/mobile-dashboard.png) |
 
 ---
 
