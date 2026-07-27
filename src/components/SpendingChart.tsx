@@ -19,8 +19,8 @@ const CustomTooltip = ({ active, payload, label, currency }: {
   const total = payload.reduce((sum, p) => sum + (p.value || 0), 0);
 
   return (
-    <div className="bg-[#1a1a1f] border border-[#2a2a32] rounded-lg p-3 shadow-xl text-sm">
-      <p className="text-gray-400 font-medium mb-2">{label}</p>
+    <div className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-3 shadow-xl text-sm">
+      <p className="text-[var(--text-secondary)] font-medium mb-2">{label}</p>
       {payload
         .filter(p => p.value > 0)
         .sort((a, b) => b.value - a.value)
@@ -28,17 +28,17 @@ const CustomTooltip = ({ active, payload, label, currency }: {
           <div key={p.name} className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full" style={{ backgroundColor: p.color }} />
-              <span className="text-gray-300">{p.name}</span>
+              <span className="text-[var(--text-secondary)]">{p.name}</span>
             </div>
-            <span className="text-white font-medium">
+            <span className="text-[var(--text-primary)] font-medium">
               {new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(p.value)}
             </span>
           </div>
         ))}
       {payload.length > 1 && (
-        <div className="border-t border-white/10 mt-2 pt-2 flex justify-between">
-          <span className="text-gray-400">Total</span>
-          <span className="text-white font-bold">
+        <div className="border-t border-[var(--border)] mt-2 pt-2 flex justify-between">
+          <span className="text-[var(--text-secondary)]">Total</span>
+          <span className="text-[var(--text-primary)] font-bold">
             {new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(total)}
           </span>
         </div>
@@ -49,6 +49,11 @@ const CustomTooltip = ({ active, payload, label, currency }: {
 
 export const SpendingChart = ({ data, currency }: SpendingChartProps) => {
   const [view, setView] = useState<'monthly' | 'yearly'>('monthly');
+
+  // Read theme from DOM for Recharts inline style props
+  const isLight = document.documentElement.classList.contains('light');
+  const gridStroke = isLight ? '#e5e5ea' : '#2a2a32';
+  const tickColor = isLight ? '#6b7280' : '#6b7280';
   
   const chartData = view === 'yearly' 
     ? data.map(d => {
@@ -67,9 +72,9 @@ export const SpendingChart = ({ data, currency }: SpendingChartProps) => {
 
   if (data.length === 0 || activeCategories.length === 0) {
     return (
-      <div className="bg-[#1a1a1f] border border-[#2a2a32] rounded-xl p-6">
-        <h2 className="text-lg font-semibold text-white mb-4">Spending by Category</h2>
-        <div className="h-48 flex items-center justify-center text-gray-500 text-sm">
+      <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-6">
+        <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-4">Spending by Category</h2>
+        <div className="h-48 flex items-center justify-center text-[var(--text-muted)] text-sm">
           No spending data yet
         </div>
       </div>
@@ -77,16 +82,16 @@ export const SpendingChart = ({ data, currency }: SpendingChartProps) => {
   }
 
   return (
-    <div className="bg-[#1a1a1f] border border-[#2a2a32] rounded-xl p-6">
+    <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-6">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-white">Spending by Category</h2>
-        <div className="flex gap-1 bg-white/5 p-1 rounded-lg">
+        <h2 className="text-lg font-semibold text-[var(--text-primary)]">Spending by Category</h2>
+        <div className="flex gap-1 bg-[var(--surface)] p-1 rounded-lg">
           {(['monthly', 'yearly'] as const).map(v => (
             <button
               key={v}
               onClick={() => setView(v)}
               className={`px-3 py-1 rounded-md text-xs font-medium transition-colors capitalize ${
-                view === v ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'
+                view === v ? 'bg-blue-600 text-white' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
               {v}
@@ -96,23 +101,23 @@ export const SpendingChart = ({ data, currency }: SpendingChartProps) => {
       </div>
       <ResponsiveContainer width="100%" height={240}>
         <BarChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#2a2a32" vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
           <XAxis 
             dataKey="month" 
-            tick={{ fill: '#6b7280', fontSize: 12 }}
+            tick={{ fill: tickColor, fontSize: 12 }}
             axisLine={false}
             tickLine={false}
           />
           <YAxis 
-            tick={{ fill: '#6b7280', fontSize: 11 }}
+            tick={{ fill: tickColor, fontSize: 11 }}
             axisLine={false}
             tickLine={false}
             tickFormatter={(v) => `$${v}`}
           />
-          <Tooltip content={<CustomTooltip currency={currency} />} cursor={{ fill: '#ffffff08' }} />
+          <Tooltip content={<CustomTooltip currency={currency} />} cursor={{ fill: isLight ? 'rgba(0,0,0,0.04)' : '#ffffff08' }} />
           <Legend 
             wrapperStyle={{ fontSize: '12px', paddingTop: '12px' }}
-            formatter={(value) => <span style={{ color: '#9ca3af' }}>{CATEGORIES.find(c => c.id === value)?.label || value}</span>}
+            formatter={(value) => <span style={{ color: tickColor }}>{CATEGORIES.find(c => c.id === value)?.label || value}</span>}
           />
           {activeCategories.map(cat => (
             <Bar key={cat.id} dataKey={cat.id} stackId="a" fill={cat.color} radius={cat.id === activeCategories[activeCategories.length - 1].id ? [4, 4, 0, 0] : [0, 0, 0, 0]} />

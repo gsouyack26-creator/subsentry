@@ -16,7 +16,7 @@
 - [x] Renewal countdown chips
 - [x] Alert banner (renews in 3 days)
 - [x] Unused subscription detection (30+ days)
-- [ ] Browser push notifications
+- [x] Browser push notifications
 
 ## v0.4 — Data & Settings ✅
 - [x] CSV export
@@ -26,7 +26,7 @@
 
 ## v0.5 — PWA & Polish
 - [x] Full PWA support (offline, installable)
-- [ ] Dark/light mode toggle
+- [x] Dark/light mode toggle
 - [ ] Smooth animations (Framer Motion)
 - [x] Mobile responsive layout
 

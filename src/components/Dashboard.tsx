@@ -8,7 +8,7 @@ import { SpendingChart } from './SpendingChart';
 import { RenewalTimeline } from './RenewalTimeline';
 import { EmptyState } from './EmptyState';
 import { CATEGORIES } from '../utils/categories';
-import { formatCurrency } from '../utils/dates';
+import { formatCurrency, isUnused } from '../utils/dates';
 import { Plus, DollarSign, Calendar, AlertTriangle, ZapOff } from 'lucide-react';
 
 interface DashboardProps {
@@ -28,15 +28,15 @@ const KPICard = ({ label, value, sub, icon: Icon, color }: {
   icon: React.ElementType;
   color: string;
 }) => (
-  <div className="bg-[#1a1a1f] border border-[#2a2a32] rounded-xl p-4">
+  <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4">
     <div className="flex items-start justify-between mb-3">
       <div className={`w-9 h-9 rounded-lg flex items-center justify-center`} style={{ backgroundColor: color + '20' }}>
         <Icon size={18} style={{ color }} />
       </div>
     </div>
-    <div className="text-2xl font-bold text-white mb-0.5">{value}</div>
-    <div className="text-xs text-gray-400">{label}</div>
-    {sub && <div className="text-xs text-gray-500 mt-0.5">{sub}</div>}
+    <div className="text-2xl font-bold text-[var(--text-primary)] mb-0.5">{value}</div>
+    <div className="text-xs text-[var(--text-secondary)]">{label}</div>
+    {sub && <div className="text-xs text-[var(--text-muted)] mt-0.5">{sub}</div>}
   </div>
 );
 
@@ -44,7 +44,7 @@ export const Dashboard = ({ subscriptions, currency, onAdd, onEdit, onDelete, on
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const { totalMonthly, totalYearly, renewingThisWeek, chartData } = useSpending(subscriptions);
   const { renewalAlerts } = useAlerts(subscriptions);
-  const unusedCount = subscriptions.filter(s => s.lastUsedAt && new Date(s.lastUsedAt) < new Date(Date.now() - 30 * 86400000)).length;
+  const unusedCount = subscriptions.filter(s => isUnused(s.lastUsedAt, 30)).length;
 
   const filtered = activeCategory === 'all' 
     ? subscriptions 
@@ -103,7 +103,7 @@ export const Dashboard = ({ subscriptions, currency, onAdd, onEdit, onDelete, on
         <button
           onClick={() => setActiveCategory('all')}
           className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-            activeCategory === 'all' ? 'bg-blue-600 text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'
+            activeCategory === 'all' ? 'bg-blue-600 text-white' : 'bg-[var(--surface)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)]'
           }`}
         >
           All ({subscriptions.length})
@@ -116,7 +116,7 @@ export const Dashboard = ({ subscriptions, currency, onAdd, onEdit, onDelete, on
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
               className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
-                activeCategory === cat.id ? 'text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                activeCategory === cat.id ? 'text-white' : 'bg-[var(--surface)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)]'
               }`}
               style={activeCategory === cat.id ? { backgroundColor: cat.color, color: 'white' } : {}}
             >
@@ -128,7 +128,7 @@ export const Dashboard = ({ subscriptions, currency, onAdd, onEdit, onDelete, on
 
       {/* Subscriptions Grid */}
       {sorted.length === 0 ? (
-        <div className="text-center py-12 text-gray-500">
+        <div className="text-center py-12 text-[var(--text-muted)]">
           No subscriptions in this category
         </div>
       ) : (

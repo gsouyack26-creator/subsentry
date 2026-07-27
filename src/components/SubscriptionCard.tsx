@@ -1,5 +1,5 @@
 import { Subscription } from '../types';
-import { daysUntilRenewal, formatCountdown, formatCurrency, normalizeToMonthly, formatDate } from '../utils/dates';
+import { daysUntilRenewal, daysSince, formatCountdown, formatCurrency, normalizeToMonthly, formatDate } from '../utils/dates';
 import { getCategoryById } from '../utils/categories';
 import { Pencil, Trash2, CheckCircle } from 'lucide-react';
 
@@ -17,16 +17,16 @@ export const SubscriptionCard = ({ subscription, currency, onEdit, onDelete, onM
   const category = getCategoryById(subscription.category);
   const monthlyAmount = normalizeToMonthly(subscription.amount, subscription.billingCycle);
   
-  const isUsedRecently = subscription.lastUsedAt && daysUntilRenewal(subscription.lastUsedAt) > -30;
+  const isUsedRecently = subscription.lastUsedAt != null && daysSince(subscription.lastUsedAt) < 30;
 
   const chipClass = urgency === 'critical' 
     ? 'bg-red-500/20 text-red-400 border-red-500/30'
     : urgency === 'warning'
     ? 'bg-amber-500/20 text-amber-400 border-amber-500/30'
-    : 'bg-white/5 text-gray-400 border-white/10';
+    : 'bg-[var(--surface)] text-[var(--text-secondary)] border-[var(--border)]';
 
   return (
-    <div className="relative bg-[#1a1a1f] border border-[#2a2a32] rounded-xl overflow-hidden hover:-translate-y-0.5 hover:border-white/20 transition-all duration-200 group">
+    <div className="relative bg-[var(--card)] border border-[var(--border)] rounded-xl overflow-hidden hover:-translate-y-0.5 hover:border-[var(--text-muted)] transition-all duration-200 group">
       {/* Color accent bar */}
       <div className="absolute left-0 top-0 bottom-0 w-1" style={{ backgroundColor: subscription.color || category.color }} />
       
@@ -36,13 +36,13 @@ export const SubscriptionCard = ({ subscription, currency, onEdit, onDelete, onM
           <div className="flex items-center gap-3 min-w-0">
             {/* Icon circle */}
             <div 
-              className="w-9 h-9 rounded-lg flex items-center justify-center text-white text-sm font-bold shrink-0"
+              className="w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold shrink-0"
               style={{ backgroundColor: (subscription.color || category.color) + '25', color: subscription.color || category.color }}
             >
               {subscription.name.charAt(0).toUpperCase()}
             </div>
             <div className="min-w-0">
-              <h3 className="font-semibold text-white truncate">{subscription.name}</h3>
+              <h3 className="font-semibold text-[var(--text-primary)] truncate">{subscription.name}</h3>
               <span 
                 className="text-xs px-2 py-0.5 rounded-full inline-block mt-0.5"
                 style={{ 
@@ -59,21 +59,21 @@ export const SubscriptionCard = ({ subscription, currency, onEdit, onDelete, onM
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
             <button
               onClick={() => subscription.id && onMarkUsed(subscription.id)}
-              className="p-1.5 rounded-md hover:bg-white/10 text-gray-500 hover:text-green-400 transition-colors"
+              className="p-1.5 rounded-md hover:bg-[var(--surface-hover)] text-[var(--text-muted)] hover:text-green-400 transition-colors"
               title="Mark as used today"
             >
               <CheckCircle size={14} />
             </button>
             <button
               onClick={() => onEdit(subscription)}
-              className="p-1.5 rounded-md hover:bg-white/10 text-gray-500 hover:text-blue-400 transition-colors"
+              className="p-1.5 rounded-md hover:bg-[var(--surface-hover)] text-[var(--text-muted)] hover:text-blue-400 transition-colors"
               title="Edit"
             >
               <Pencil size={14} />
             </button>
             <button
               onClick={() => subscription.id && onDelete(subscription.id)}
-              className="p-1.5 rounded-md hover:bg-white/10 text-gray-500 hover:text-red-400 transition-colors"
+              className="p-1.5 rounded-md hover:bg-[var(--surface-hover)] text-[var(--text-muted)] hover:text-red-400 transition-colors"
               title="Delete"
             >
               <Trash2 size={14} />
@@ -83,12 +83,12 @@ export const SubscriptionCard = ({ subscription, currency, onEdit, onDelete, onM
         
         {/* Amount */}
         <div className="mb-3">
-          <div className="text-xl font-bold text-white">
+          <div className="text-xl font-bold text-[var(--text-primary)]">
             {formatCurrency(subscription.amount, currency)}
-            <span className="text-xs text-gray-400 font-normal ml-1">/{subscription.billingCycle}</span>
+            <span className="text-xs text-[var(--text-secondary)] font-normal ml-1">/{subscription.billingCycle}</span>
           </div>
           {subscription.billingCycle !== 'monthly' && (
-            <div className="text-xs text-gray-500 mt-0.5">
+            <div className="text-xs text-[var(--text-muted)] mt-0.5">
               ≈ {formatCurrency(monthlyAmount, currency)}/mo
             </div>
           )}
@@ -96,7 +96,7 @@ export const SubscriptionCard = ({ subscription, currency, onEdit, onDelete, onM
         
         {/* Footer */}
         <div className="flex items-center justify-between">
-          <div className="text-xs text-gray-500">
+          <div className="text-xs text-[var(--text-muted)]">
             {formatDate(subscription.nextDate)}
           </div>
           <div className="flex items-center gap-2">
@@ -114,7 +114,7 @@ export const SubscriptionCard = ({ subscription, currency, onEdit, onDelete, onM
         </div>
         
         {subscription.notes && (
-          <p className="text-xs text-gray-500 mt-2 truncate">{subscription.notes}</p>
+          <p className="text-xs text-[var(--text-muted)] mt-2 truncate">{subscription.notes}</p>
         )}
       </div>
     </div>

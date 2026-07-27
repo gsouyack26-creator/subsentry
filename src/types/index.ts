@@ -29,6 +29,7 @@ export interface Alert {
 export interface Settings {
   currency: string;
   notificationsEnabled: boolean;
+  theme: 'dark' | 'light';
 }
 
 export type BillingCycle = 'weekly' | 'monthly' | 'quarterly' | 'yearly';

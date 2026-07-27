@@ -83,13 +83,13 @@ export const AddSubModal = ({ isOpen, onClose, onSave, editingSub }: AddSubModal
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="bg-[#1a1a1f] border border-[#2a2a32] rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl">
+      <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-[#2a2a32]">
-          <h2 className="text-lg font-semibold text-white">
+        <div className="flex items-center justify-between p-5 border-b border-[var(--border)]">
+          <h2 className="text-lg font-semibold text-[var(--text-primary)]">
             {editingSub ? 'Edit Subscription' : 'Add Subscription'}
           </h2>
-          <button onClick={onClose} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-white">
+          <button onClick={onClose} className="p-1.5 hover:bg-[var(--surface-hover)] rounded-lg transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
             <X size={18} />
           </button>
         </div>
@@ -99,20 +99,20 @@ export const AddSubModal = ({ isOpen, onClose, onSave, editingSub }: AddSubModal
 
           {/* Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1.5">Service Name *</label>
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">Service Name *</label>
             <input
               type="text"
               value={form.name}
               onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
               placeholder="e.g. Netflix, Spotify..."
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors"
+              className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-lg px-3 py-2 text-[var(--text-primary)] placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors"
             />
           </div>
 
           {/* Amount + Currency */}
           <div className="grid grid-cols-3 gap-3">
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-gray-300 mb-1.5">Amount *</label>
+              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">Amount *</label>
               <input
                 type="number"
                 value={form.amount}
@@ -120,15 +120,15 @@ export const AddSubModal = ({ isOpen, onClose, onSave, editingSub }: AddSubModal
                 placeholder="0.00"
                 min="0"
                 step="0.01"
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors"
+                className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-lg px-3 py-2 text-[var(--text-primary)] placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1.5">Currency</label>
+              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">Currency</label>
               <select
                 value={form.currency}
                 onChange={e => setForm(f => ({ ...f, currency: e.target.value }))}
-                className="w-full bg-[#0f0f11] border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
+                className="w-full bg-[var(--bg)] border border-[var(--border)] rounded-lg px-3 py-2 text-[var(--text-primary)] focus:outline-none focus:border-blue-500 transition-colors"
               >
                 {CURRENCIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
@@ -137,7 +137,7 @@ export const AddSubModal = ({ isOpen, onClose, onSave, editingSub }: AddSubModal
 
           {/* Billing Cycle */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1.5">Billing Cycle</label>
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">Billing Cycle</label>
             <div className="grid grid-cols-4 gap-2">
               {BILLING_CYCLES.map(cycle => (
                 <button
@@ -147,7 +147,7 @@ export const AddSubModal = ({ isOpen, onClose, onSave, editingSub }: AddSubModal
                   className={`py-2 rounded-lg text-sm font-medium capitalize transition-colors ${
                     form.billingCycle === cycle
                       ? 'bg-blue-600 text-white'
-                      : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                      : 'bg-[var(--surface)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)]'
                   }`}
                 >
                   {cycle}
@@ -158,18 +158,18 @@ export const AddSubModal = ({ isOpen, onClose, onSave, editingSub }: AddSubModal
 
           {/* Next Renewal Date */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1.5">Next Renewal Date *</label>
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">Next Renewal Date *</label>
             <input
               type="date"
               value={form.nextDate}
               onChange={e => setForm(f => ({ ...f, nextDate: e.target.value }))}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors [color-scheme:dark]"
+              className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-lg px-3 py-2 text-[var(--text-primary)] focus:outline-none focus:border-blue-500 transition-colors"
             />
           </div>
 
           {/* Category */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1.5">Category</label>
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">Category</label>
             <div className="grid grid-cols-3 gap-2">
               {CATEGORIES.map(cat => (
                 <button
@@ -177,7 +177,7 @@ export const AddSubModal = ({ isOpen, onClose, onSave, editingSub }: AddSubModal
                   type="button"
                   onClick={() => handleCategoryChange(cat.id)}
                   className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                    form.category === cat.id ? 'border' : 'bg-white/5 hover:bg-white/10 text-gray-400'
+                    form.category === cat.id ? 'border' : 'bg-[var(--surface)] hover:bg-[var(--surface-hover)] text-[var(--text-secondary)]'
                   }`}
                   style={form.category === cat.id ? {
                     backgroundColor: cat.color + '20',
@@ -194,13 +194,13 @@ export const AddSubModal = ({ isOpen, onClose, onSave, editingSub }: AddSubModal
 
           {/* Notes */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1.5">Notes (optional)</label>
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">Notes (optional)</label>
             <input
               type="text"
               value={form.notes}
               onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
               placeholder="Any notes about this subscription..."
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors"
+              className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-lg px-3 py-2 text-[var(--text-primary)] placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors"
             />
           </div>
 
@@ -209,7 +209,7 @@ export const AddSubModal = ({ isOpen, onClose, onSave, editingSub }: AddSubModal
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 font-medium transition-colors"
+              className="flex-1 py-2.5 rounded-lg bg-[var(--surface)] hover:bg-[var(--surface-hover)] text-[var(--text-secondary)] font-medium transition-colors"
             >
               Cancel
             </button>

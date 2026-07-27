@@ -39,6 +39,16 @@ export const daysUntilRenewal = (dateStr: string): number => {
   return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 };
 
+/** Returns positive days elapsed since a past date (0 if today or future). */
+export const daysSince = (dateStr: string): number => {
+  const date = new Date(dateStr);
+  const now = new Date();
+  date.setHours(0, 0, 0, 0);
+  now.setHours(0, 0, 0, 0);
+  const diffMs = now.getTime() - date.getTime();
+  return Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
+};
+
 export const formatCountdown = (days: number): { label: string; urgency: 'critical' | 'warning' | 'normal' } => {
   if (days < 0) return { label: 'Overdue', urgency: 'critical' };
   if (days === 0) return { label: 'TODAY', urgency: 'critical' };
@@ -98,10 +108,10 @@ export const getLast6Months = (): Array<{ year: number; month: number; label: st
   return months;
 };
 
+/** Returns true if the subscription has not been used for thresholdDays or more. */
 export const isUnused = (lastUsedAt?: string, thresholdDays: number = 30): boolean => {
   if (!lastUsedAt) return false;
-  const days = daysUntilRenewal(lastUsedAt);
-  return Math.abs(days) >= thresholdDays;
+  return daysSince(lastUsedAt) >= thresholdDays;
 };
 
 export const todayISO = (): string => {
