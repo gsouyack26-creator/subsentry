@@ -3,6 +3,7 @@ import { Layout } from './components/Layout';
 import { Dashboard } from './components/Dashboard';
 import { SettingsPage } from './components/SettingsPage';
 import { AddSubModal } from './components/AddSubModal';
+import { ImportStatementModal } from './components/ImportStatementModal';
 import { useSubscriptions } from './hooks/useSubscriptions';
 import { useSettings } from './hooks/useSettings';
 import { useTheme } from './hooks/useTheme';
@@ -15,6 +16,7 @@ function App() {
   const [page, setPage] = useState('dashboard');
   const [modalOpen, setModalOpen] = useState(false);
   const [editingSub, setEditingSub] = useState<Subscription | null>(null);
+  const [statementImportOpen, setStatementImportOpen] = useState(false);
 
   const { subscriptions, addSubscription, updateSubscription, deleteSubscription, markAsUsed, clearAll, seedSampleData, isLoading } = useSubscriptions();
   const { currency, setSetting, notificationsEnabled } = useSettings();
@@ -64,6 +66,12 @@ function App() {
     }
   };
 
+  const handleStatementImport = async (subs: Omit<Subscription, 'id'>[]) => {
+    for (const sub of subs) {
+      await addSubscription(sub);
+    }
+  };
+
   const handleNotificationsToggle = async (enabled: boolean) => {
     if (enabled) {
       const permission = await requestNotificationPermission();
@@ -107,6 +115,7 @@ function App() {
           onImport={handleImport}
           notificationsEnabled={notificationsEnabled}
           onNotificationsToggle={handleNotificationsToggle}
+          onOpenStatementImport={() => setStatementImportOpen(true)}
         />
       )}
 
@@ -115,6 +124,14 @@ function App() {
         onClose={() => { setModalOpen(false); setEditingSub(null); }}
         onSave={handleSave}
         editingSub={editingSub}
+      />
+
+      <ImportStatementModal
+        isOpen={statementImportOpen}
+        onClose={() => setStatementImportOpen(false)}
+        onImport={handleStatementImport}
+        currency={currency}
+        existingNames={subscriptions.map(s => s.name)}
       />
     </Layout>
   );

@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { Subscription } from '../types';
 import { exportToCSV, importFromCSV } from '../utils/csv';
 import { SAMPLE_DATA } from '../utils/categories';
-import { Download, Upload, Trash2, Sparkles, AlertCircle, Bell, BellOff } from 'lucide-react';
+import { Download, Upload, Trash2, Sparkles, AlertCircle, Bell, BellOff, FileSearch } from 'lucide-react';
 
 const CURRENCIES = [
   { code: 'USD', label: 'US Dollar ($)' },
@@ -22,6 +22,7 @@ interface SettingsPageProps {
   onImport: (subs: Omit<Subscription, 'id'>[]) => Promise<void>;
   notificationsEnabled: boolean;
   onNotificationsToggle: (enabled: boolean) => Promise<void>;
+  onOpenStatementImport: () => void;
 }
 
 export const SettingsPage = ({
@@ -33,6 +34,7 @@ export const SettingsPage = ({
   onImport,
   notificationsEnabled,
   onNotificationsToggle,
+  onOpenStatementImport,
 }: SettingsPageProps) => {
   const [confirmClear, setConfirmClear] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -198,6 +200,17 @@ export const SettingsPage = ({
           </button>
           <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={handleImportFile} />
 
+          {/* Bank Statement Import */}
+          <button
+            onClick={onOpenStatementImport}
+            className="w-full flex items-center gap-3 px-4 py-3 bg-[var(--surface)] hover:bg-[var(--surface-hover)] border border-[var(--border)] rounded-lg text-sm text-[var(--text-secondary)] font-medium transition-colors text-left"
+          >
+            <FileSearch size={16} className="text-purple-400 shrink-0" />
+            <div>
+              <div>Import from bank statement</div>
+              <div className="text-xs text-[var(--text-muted)] font-normal">Auto-detect recurring subscriptions</div>
+            </div>
+          </button>
           {/* Seed */}
           <button
             onClick={handleSeedData}

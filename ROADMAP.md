@@ -34,3 +34,18 @@
 - [ ] README with screenshots
 - [ ] GitHub Pages deploy
 - [ ] Onboarding flow (first-run wizard)
+
+## v1.1 — Import & Detection
+- [x] Bank/card CSV import with recurring-charge detection
+- [x] Auto-detect subscription cadence (weekly/monthly/quarterly/yearly)
+- [x] Confidence scoring with category guessing
+- [x] Review UI with per-row category editing and duplicate skipping
+
+## v2 — Email Linking (planned)
+> See [docs/EMAIL_LINKING_V2.md](docs/EMAIL_LINKING_V2.md) for full design doc.
+- [ ] OAuth backend (Cloudflare Workers) for Gmail/Outlook token exchange
+- [ ] Gmail `gmail.readonly` scope + Google CASA Tier 2 security assessment
+- [ ] Microsoft Graph `Mail.Read` for Outlook
+- [ ] Receipt parsing engine (heuristics + optional LLM fallback)
+- [ ] Forward-to-parse alternative (no OAuth required)
+- [ ] Encrypted refresh token storage (AES-256-GCM)
