@@ -27,7 +27,7 @@ const kpiVariants = {
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.22, ease: 'easeOut', delay: i * 0.06 },
+    transition: { duration: 0.22, ease: 'easeOut' as const, delay: i * 0.06 },
   }),
 };
 
