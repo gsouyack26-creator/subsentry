@@ -24,7 +24,7 @@ function App() {
   const [onboardingChecked, setOnboardingChecked] = useState(false);
 
   const { subscriptions, addSubscription, updateSubscription, deleteSubscription, markAsUsed, clearAll, seedSampleData, isLoading } = useSubscriptions();
-  const { currency, setSetting: setSettingHook, notificationsEnabled } = useSettings();
+  const { currency, setSetting: setSettingHook, notificationsEnabled, monthlyBudget } = useSettings();
   const { theme, toggleTheme } = useTheme();
 
   // Check onboarding completion on load (once data is ready)
@@ -94,6 +94,10 @@ function App() {
     }
   };
 
+  const handleBudgetChange = async (value: number | null) => {
+    await setSetting('monthlyBudget', value != null ? value.toString() : '');
+  };
+
   const handleNotificationsToggle = async (enabled: boolean) => {
     if (enabled) {
       const permission = await requestNotificationPermission();
@@ -126,6 +130,10 @@ function App() {
             onDelete={handleDelete}
             onMarkUsed={markAsUsed}
             onSeedData={handleSeedData}
+            monthlyBudget={monthlyBudget}
+            onOpenStatementImport={() => setStatementImportOpen(true)}
+            monthlyBudget={monthlyBudget}
+            onBudgetChange={handleBudgetChange}
           />
         )}
         {page === 'settings' && (
@@ -139,6 +147,8 @@ function App() {
             notificationsEnabled={notificationsEnabled}
             onNotificationsToggle={handleNotificationsToggle}
             onOpenStatementImport={() => setStatementImportOpen(true)}
+            monthlyBudget={monthlyBudget}
+            onBudgetChange={handleBudgetChange}
           />
         )}
 

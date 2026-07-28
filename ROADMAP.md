@@ -30,16 +30,20 @@
 - [x] Smooth animations (Framer Motion)
 - [x] Mobile responsive layout
 
-## v1.0 — Launch
-- [ ] README with screenshots
-- [ ] GitHub Pages deploy
+## v1.0 — Launch ✅
+- [x] README with feature overview and usage guide
+- [x] GitHub Pages deploy (CI/CD via GitHub Actions)
 - [x] Onboarding flow (first-run wizard)
 
-## v1.1 — Import & Detection
+## v1.1 — Import & Detection ✅
 - [x] Bank/card CSV import with recurring-charge detection
 - [x] Auto-detect subscription cadence (weekly/monthly/quarterly/yearly)
 - [x] Confidence scoring with category guessing
 - [x] Review UI with per-row category editing and duplicate skipping
+- [x] Monthly budget tracker with visual gauge (replaces unused KPI when set)
+- [x] Search subscriptions by name/category/notes
+- [x] Sort by renewal date, price (high/low), or name
+- [x] Empty state: import from statement shortcut
 
 ## v2 — Email Linking (planned)
 > See [docs/EMAIL_LINKING_V2.md](docs/EMAIL_LINKING_V2.md) for full design doc.

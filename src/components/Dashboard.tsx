@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence, MotionConfig } from 'framer-motion';
 import { Subscription } from '../types';
 import { useSpending } from '../hooks/useSpending';
@@ -8,19 +8,31 @@ import { AlertBanner } from './AlertBanner';
 import { SpendingChart } from './SpendingChart';
 import { RenewalTimeline } from './RenewalTimeline';
 import { EmptyState } from './EmptyState';
+import { BudgetGauge } from './BudgetGauge';
 import { CATEGORIES } from '../utils/categories';
 import { formatCurrency, isUnused } from '../utils/dates';
-import { Plus, DollarSign, Calendar, AlertTriangle, ZapOff } from 'lucide-react';
+import { Plus, DollarSign, Calendar, ZapOff, Search, X, ArrowUpDown } from 'lucide-react';
 
 interface DashboardProps {
   subscriptions: Subscription[];
   currency: string;
+  monthlyBudget?: number | null;
   onAdd: () => void;
   onEdit: (sub: Subscription) => void;
   onDelete: (id: number) => void;
   onMarkUsed: (id: number) => void;
   onSeedData: () => void;
+  onOpenStatementImport?: () => void;
 }
+
+type SortKey = 'renewal' | 'price-desc' | 'price-asc' | 'name';
+
+const SORT_OPTIONS: { value: SortKey; label: string }[] = [
+  { value: 'renewal', label: 'Next renewal' },
+  { value: 'price-desc', label: 'Price: high → low' },
+  { value: 'price-asc', label: 'Price: low → high' },
+  { value: 'name', label: 'Name: A → Z' },
+];
 
 const kpiVariants = {
   hidden: { opacity: 0, y: 12 },
@@ -47,7 +59,7 @@ const KPICard = ({ label, value, sub, icon: Icon, color, index }: {
     className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4"
   >
     <div className="flex items-start justify-between mb-3">
-      <div className={`w-9 h-9 rounded-lg flex items-center justify-center`} style={{ backgroundColor: color + '20' }}>
+      <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: color + '20' }}>
         <Icon size={18} style={{ color }} />
       </div>
     </div>
@@ -57,21 +69,64 @@ const KPICard = ({ label, value, sub, icon: Icon, color, index }: {
   </motion.div>
 );
 
-export const Dashboard = ({ subscriptions, currency, onAdd, onEdit, onDelete, onMarkUsed, onSeedData }: DashboardProps) => {
+export const Dashboard = ({
+  subscriptions,
+  currency,
+  monthlyBudget,
+  onAdd,
+  onEdit,
+  onDelete,
+  onMarkUsed,
+  onSeedData,
+  onOpenStatementImport,
+}: DashboardProps) => {
   const [activeCategory, setActiveCategory] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortKey, setSortKey] = useState<SortKey>('renewal');
+
   const { totalMonthly, totalYearly, renewingThisWeek, chartData } = useSpending(subscriptions);
   const { renewalAlerts } = useAlerts(subscriptions);
   const unusedCount = subscriptions.filter(s => isUnused(s.lastUsedAt, 30)).length;
 
-  const filtered = activeCategory === 'all' 
-    ? subscriptions 
-    : subscriptions.filter(s => s.category === activeCategory);
+  const filtered = useMemo(() => {
+    let list = activeCategory === 'all'
+      ? subscriptions
+      : subscriptions.filter(s => s.category === activeCategory);
 
-  const sorted = [...filtered].sort((a, b) => new Date(a.nextDate).getTime() - new Date(b.nextDate).getTime());
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase();
+      list = list.filter(s =>
+        s.name.toLowerCase().includes(q) ||
+        s.category.toLowerCase().includes(q) ||
+        (s.notes || '').toLowerCase().includes(q)
+      );
+    }
+
+    return [...list].sort((a, b) => {
+      switch (sortKey) {
+        case 'renewal':
+          return new Date(a.nextDate).getTime() - new Date(b.nextDate).getTime();
+        case 'price-desc':
+          return b.amount - a.amount;
+        case 'price-asc':
+          return a.amount - b.amount;
+        case 'name':
+          return a.name.localeCompare(b.name);
+      }
+    });
+  }, [subscriptions, activeCategory, searchQuery, sortKey]);
 
   if (subscriptions.length === 0) {
-    return <EmptyState onAddFirst={onAdd} onSeedData={onSeedData} />;
+    return (
+      <EmptyState
+        onAddFirst={onAdd}
+        onSeedData={onSeedData}
+        onImportStatement={onOpenStatementImport}
+      />
+    );
   }
+
+  const kpiCount = monthlyBudget ? 4 : 4; // always 4 cards
 
   return (
     <MotionConfig reducedMotion="user">
@@ -104,14 +159,23 @@ export const Dashboard = ({ subscriptions, currency, onAdd, onEdit, onDelete, on
             color="#f59e0b"
             index={2}
           />
-          <KPICard
-            label="Unused (30+ days)"
-            value={unusedCount.toString()}
-            sub={unusedCount === 0 ? 'All active' : 'Consider cancelling'}
-            icon={unusedCount > 0 ? ZapOff : AlertTriangle}
-            color={unusedCount > 0 ? '#ef4444' : '#6b7280'}
-            index={3}
-          />
+          {monthlyBudget ? (
+            <BudgetGauge
+              spent={totalMonthly}
+              budget={monthlyBudget}
+              currency={currency}
+              index={3}
+            />
+          ) : (
+            <KPICard
+              label="Unused (30+ days)"
+              value={unusedCount.toString()}
+              sub={unusedCount === 0 ? 'All active' : 'Consider cancelling'}
+              icon={ZapOff}
+              color={unusedCount > 0 ? '#ef4444' : '#6b7280'}
+              index={3}
+            />
+          )}
         </div>
 
         {/* Charts Row */}
@@ -120,43 +184,93 @@ export const Dashboard = ({ subscriptions, currency, onAdd, onEdit, onDelete, on
           <RenewalTimeline subscriptions={subscriptions} currency={currency} />
         </div>
 
-        {/* Category Filters */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <button
-            onClick={() => setActiveCategory('all')}
-            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-              activeCategory === 'all' ? 'bg-blue-600 text-white' : 'bg-[var(--surface)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)]'
-            }`}
-          >
-            All ({subscriptions.length})
-          </button>
-          {CATEGORIES.map(cat => {
-            const count = subscriptions.filter(s => s.category === cat.id).length;
-            if (count === 0) return null;
-            return (
-              <button
-                key={cat.id}
-                onClick={() => setActiveCategory(cat.id)}
-                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
-                  activeCategory === cat.id ? 'text-white' : 'bg-[var(--surface)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)]'
-                }`}
-                style={activeCategory === cat.id ? { backgroundColor: cat.color, color: 'white' } : {}}
+        {/* Controls Row: category filters + search + sort */}
+        <div className="space-y-3">
+          {/* Category filters */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={() => setActiveCategory('all')}
+              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                activeCategory === 'all'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-[var(--surface)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)]'
+              }`}
+            >
+              All ({subscriptions.length})
+            </button>
+            {CATEGORIES.map(cat => {
+              const count = subscriptions.filter(s => s.category === cat.id).length;
+              if (count === 0) return null;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => setActiveCategory(cat.id)}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                    activeCategory === cat.id
+                      ? 'text-white'
+                      : 'bg-[var(--surface)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)]'
+                  }`}
+                  style={activeCategory === cat.id ? { backgroundColor: cat.color } : {}}
+                >
+                  {cat.label} ({count})
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Search + Sort row */}
+          <div className="flex items-center gap-2">
+            {/* Search */}
+            <div className="relative flex-1 max-w-xs">
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                placeholder="Search subscriptions…"
+                className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-lg pl-8 pr-8 py-2 text-sm text-[var(--text-primary)] placeholder-[color:var(--text-muted)] focus:outline-none focus:border-blue-500 transition-colors"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+                >
+                  <X size={13} />
+                </button>
+              )}
+            </div>
+
+            {/* Sort */}
+            <div className="relative">
+              <ArrowUpDown size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none" />
+              <select
+                value={sortKey}
+                onChange={e => setSortKey(e.target.value as SortKey)}
+                className="appearance-none bg-[var(--surface)] border border-[var(--border)] rounded-lg pl-7 pr-7 py-2 text-sm text-[var(--text-secondary)] focus:outline-none focus:border-blue-500 cursor-pointer transition-colors"
               >
-                {cat.label} ({count})
-              </button>
-            );
-          })}
+                {SORT_OPTIONS.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+          </div>
         </div>
 
         {/* Subscriptions Grid */}
-        {sorted.length === 0 ? (
-          <div className="text-center py-12 text-[var(--text-muted)]">
-            No subscriptions in this category
-          </div>
+        {filtered.length === 0 ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-12 text-[var(--text-muted)] text-sm"
+          >
+            {searchQuery
+              ? `No results for "${searchQuery}"`
+              : 'No subscriptions in this category'}
+          </motion.div>
         ) : (
           <motion.div layout className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             <AnimatePresence mode="popLayout">
-              {sorted.map((sub, i) => (
+              {filtered.map((sub, i) => (
                 <SubscriptionCard
                   key={sub.id}
                   subscription={sub}

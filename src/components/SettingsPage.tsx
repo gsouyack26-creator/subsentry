@@ -23,6 +23,8 @@ interface SettingsPageProps {
   notificationsEnabled: boolean;
   onNotificationsToggle: (enabled: boolean) => Promise<void>;
   onOpenStatementImport: () => void;
+  monthlyBudget: number | null;
+  onBudgetChange: (value: number | null) => Promise<void>;
 }
 
 export const SettingsPage = ({
@@ -35,9 +37,12 @@ export const SettingsPage = ({
   notificationsEnabled,
   onNotificationsToggle,
   onOpenStatementImport,
+  monthlyBudget,
+  onBudgetChange,
 }: SettingsPageProps) => {
   const [confirmClear, setConfirmClear] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [budgetInput, setBudgetInput] = useState(monthlyBudget != null ? monthlyBudget.toString() : '');
   const fileRef = useRef<HTMLInputElement>(null);
 
   const showMessage = (type: 'success' | 'error', text: string) => {
@@ -168,6 +173,56 @@ export const SettingsPage = ({
             }`} />
           </div>
         </button>
+      </div>
+
+      {/* Monthly Budget */}
+      <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5">
+        <h2 className="text-base font-semibold text-[var(--text-primary)] mb-1">Monthly Budget</h2>
+        <p className="text-sm text-[var(--text-secondary)] mb-4">
+          Set a monthly spending target. A budget gauge replaces the "Unused" KPI card on the dashboard.
+        </p>
+        <div className="flex items-center gap-3">
+          <div className="relative flex-1 max-w-xs">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] text-sm pointer-events-none">$</span>
+            <input
+              type="number"
+              min="0"
+              step="1"
+              value={budgetInput}
+              onChange={e => setBudgetInput(e.target.value)}
+              placeholder="e.g. 100"
+              className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-lg pl-7 pr-3 py-2 text-sm text-[var(--text-primary)] placeholder-[color:var(--text-muted)] focus:outline-none focus:border-blue-500 transition-colors"
+            />
+          </div>
+          <button
+            onClick={async () => {
+              const val = budgetInput.trim();
+              if (!val || isNaN(parseFloat(val))) {
+                await onBudgetChange(null);
+                setBudgetInput('');
+                showMessage('success', 'Budget cleared');
+              } else {
+                await onBudgetChange(parseFloat(val));
+                showMessage('success', `Monthly budget set to $${parseFloat(val).toFixed(2)}`);
+              }
+            }}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-colors shrink-0"
+          >
+            Save
+          </button>
+          {monthlyBudget != null && (
+            <button
+              onClick={async () => {
+                await onBudgetChange(null);
+                setBudgetInput('');
+                showMessage('success', 'Budget cleared');
+              }}
+              className="px-3 py-2 bg-[var(--surface)] hover:bg-[var(--surface-hover)] text-[var(--text-secondary)] text-sm rounded-lg border border-[var(--border)] transition-colors shrink-0"
+            >
+              Clear
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Data Management */}

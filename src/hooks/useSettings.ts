@@ -22,11 +22,15 @@ export const useSettings = () => {
     }
   };
 
+  const monthlyBudgetRaw = settings?.['monthlyBudget'] ?? '';
+  const monthlyBudget = monthlyBudgetRaw ? parseFloat(monthlyBudgetRaw) : null;
+
   return {
     settings: settings || {},
     getSetting,
     setSetting,
     currency: settings?.['currency'] ?? 'USD',
     notificationsEnabled: settings?.['notifications'] === 'true',
+    monthlyBudget,
   };
 };
