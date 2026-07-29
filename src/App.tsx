@@ -132,8 +132,6 @@ function App() {
             onSeedData={handleSeedData}
             monthlyBudget={monthlyBudget}
             onOpenStatementImport={() => setStatementImportOpen(true)}
-            monthlyBudget={monthlyBudget}
-            onBudgetChange={handleBudgetChange}
           />
         )}
         {page === 'settings' && (
